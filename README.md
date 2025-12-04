@@ -41,7 +41,7 @@ Data & Messaging - PostgreSQL, Redis, MinIO
 Protocols - HTTP/REST, WebSockets
 Quick Start -- Initialize the entire distributed stack with a single command.
 # 1. Clone Repository
-git clone [https://github.com/YOUR_USERNAME/distributed-video-transcoder.git](https://github.com/YOUR_USERNAME/distributed-video-transcoder.git)
+git clone [https://github.com/dkmenelf/video-transcoding-system.git](https://github.com/dkmenelf/video-transcoding-system.git)
 
 # 2. Configure Environment
 cp .env.example .env
