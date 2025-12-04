@@ -26,8 +26,8 @@ graph LR
     W1 & W2 & W3 -->|Process via FFmpeg| Storage
     W1 & W2 & W3 -.->|Pub/Sub| WebSocket[Notification Svc]
     WebSocket -.->|Real-time Status| Client
-
-Technical Highlights
+```
+## Technical Highlights
 Event-Driven Architecture: Decoupled services communicating via Redis message queues (BullMQ).
 Horizontal Scalability: Worker nodes are containerized and can be scaled independently based on load.
 Resiliency: Implements automatic retry mechanisms and dead-letter queues for failed transcoding jobs.
