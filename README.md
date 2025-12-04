@@ -22,7 +22,8 @@ graph LR
     Queue -->|Consume| W3[Worker: 1080p]
     end
     
-    W1 & W2 & W3 -->|Process (FFmpeg)| Storage
+    %% Parantezleri kaldırdım, artık hata vermez
+    W1 & W2 & W3 -->|Process via FFmpeg| Storage
     W1 & W2 & W3 -.->|Pub/Sub| WebSocket[Notification Svc]
     WebSocket -.->|Real-time Status| Client
 
