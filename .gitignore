@@ -1,0 +1,17 @@
+
+node_modules/
+npm-debug.log
+
+.env.example
+
+.DS_Store
+Thumbs.db
+
+storage/videos/*
+storage/transcoded/*
+!storage/videos/.gitkeep
+!storage/transcoded/.gitkeep
+postgres-data/
+
+.vscode/
+.idea/

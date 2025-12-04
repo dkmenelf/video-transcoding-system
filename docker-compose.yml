@@ -1,0 +1,152 @@
+
+services:
+  
+  postgres:
+    image: postgres:15-alpine
+    container_name: video_db
+    environment:
+      POSTGRES_USER: videouser
+      POSTGRES_PASSWORD: videopass
+      POSTGRES_DB: videodb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - video_network
+
+  
+  redis:
+    image: redis:7-alpine
+    container_name: video_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - video_network
+    command: redis-server --appendonly yes
+
+  
+  minio:
+    image: minio/minio:latest
+    container_name: video_storage
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    volumes:
+      - minio_data:/data
+    networks:
+      - video_network
+    command: server /data --console-address ":9001"
+
+  
+  upload-service:
+    build:
+      context: ./services/upload-service
+      dockerfile: Dockerfile
+    container_name: upload_service
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - REDIS_URL=redis://redis:6379
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin123
+      - DATABASE_URL=postgresql://videouser:videopass@postgres:5432/videodb
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    volumes:
+      - ./services/upload-service:/app
+      - /app/node_modules
+    networks:
+      - video_network
+
+  
+  worker-360p:
+    build:
+      context: ./services/worker-service
+      dockerfile: Dockerfile
+    container_name: worker_360p
+    environment:
+      - WORKER_ID=360p
+      - RESOLUTION=640x360
+      - BITRATE=800k
+      - REDIS_URL=redis://redis:6379
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin123
+      - DATABASE_URL=postgresql://videouser:videopass@postgres:5432/videodb
+    depends_on:
+      - redis
+      - minio
+    volumes:
+      - ./services/worker-service:/app
+      - /app/node_modules
+    networks:
+      - video_network
+
+  
+  worker-720p:
+    build:
+      context: ./services/worker-service
+      dockerfile: Dockerfile
+    container_name: worker_720p
+    environment:
+      - WORKER_ID=720p
+      - RESOLUTION=1280x720
+      - BITRATE=2500k
+      - REDIS_URL=redis://redis:6379
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin123
+      - DATABASE_URL=postgresql://videouser:videopass@postgres:5432/videodb
+    depends_on:
+      - redis
+      - minio
+    volumes:
+      - ./services/worker-service:/app
+      - /app/node_modules
+    networks:
+      - video_network
+
+  
+  worker-1080p:
+    build:
+      context: ./services/worker-service
+      dockerfile: Dockerfile
+    container_name: worker_1080p
+    environment:
+      - WORKER_ID=1080p
+      - RESOLUTION=1920x1080
+      - BITRATE=5000k
+      - REDIS_URL=redis://redis:6379
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin123
+      - DATABASE_URL=postgresql://videouser:videopass@postgres:5432/videodb
+    depends_on:
+      - redis
+      - minio
+    volumes:
+      - ./services/worker-service:/app
+      - /app/node_modules
+    networks:
+      - video_network
+
+volumes:
+  postgres_data:
+  minio_data:
+
+networks:
+  video_network:
+    driver: bridge
